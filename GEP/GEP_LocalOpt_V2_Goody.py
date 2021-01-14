@@ -25,28 +25,27 @@ np.random.seed(s)
 ###############################################################################
 ### Functions
 ###############################################################################
-def fObj_logANDMSE(individual):
+
+def fObj_test(individual):
     f = toolbox.compile(individual)
     Yp = f(df.Pi1,df.Pi2)
+    #Yp = f(df.Pi1,df.Pi7,df.Pi8)
     Serr_log = (10*np.log10(df.PiF)- 10*np.log10(Yp))**2
     Serr_MSE = (df.PiF- Yp)**2
+    
+    #compute range
+    range1 = (np.max(df.PiF)-np.min(df.PiF))**2
+    range2 = (np.max(10*np.log10(df.PiF))-np.min(10*np.log10(df.PiF)))**2
+    
     if np.isnan(Serr_log).any():
         MSE = 1e99
     elif np.isnan(Serr_MSE).any():
         MSE = 1e99   
     else:
-        MSE = np.mean(Serr_log*Serr_MSE)
+        MSE = 100*np.sqrt((0.5*np.mean(Serr_log)/range2 + 0.5*np.mean(Serr_MSE)/range1))
+        #MSE = 100*np.mean(Serr_MSE/range1)
     return MSE,
 
-def fObj_logMSE(individual):
-    f = toolbox.compile(individual)
-    Yp = f(df.Pi1,df.Pi2)
-    Serr = (10*np.log10(df.PiF)- 10*np.log10(Yp))**2
-    if np.isnan(Serr).any():
-        MSE = 1e99
-    else:
-        MSE = np.mean(Serr)
-    return MSE,
 
 def fObj_MSE(individual):
     f = toolbox.compile(individual)
@@ -111,8 +110,8 @@ n_genes = 3   # number of genes in a chromosome
 r = h*2 + 1   # length of the RNC array
 
 # size of population and number of generations
-n_pop = 10000
-n_gen = 300
+n_pop = 100
+n_gen = 1001
 N_eval = 1
 
 
@@ -125,7 +124,7 @@ toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 # compile utility: which translates an individual into an executable function (Lambda)
 toolbox.register('compile', gep.compile_, pset=pset)
 
-toolbox.register('evaluate', fObj_logANDMSE)
+toolbox.register('evaluate', fObj_test)
 
 toolbox.register('select', tools.selTournament, k=round((2.0/3.0)*n_pop)+1 , tournsize=2)
 #toolbox.register('select', tools.selTournament, k=n_pop , tournsize=2)
