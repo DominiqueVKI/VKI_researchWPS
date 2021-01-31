@@ -1,4 +1,4 @@
-pip install deap
-pip install scipy
-pip install matplotlib
-pip install pandas
+deap
+scipy
+matplotlib
+pandas
