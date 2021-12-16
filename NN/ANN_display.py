@@ -6,7 +6,6 @@ Created on Wed Jul 28 15:16:08 2021
 """
 import numpy as np
 import pandas as pd
-import tensorflow as tf
 from tensorflow import keras
 
 import matplotlib.pyplot as plt
@@ -51,25 +50,81 @@ def testIdx(df,trainlist):
     
 test_idx = testIdx(df,testlist)
 
+#get boundray layer parameters from dataframe
+def getBl(Pi2,Pi3,Pi4,Pi5,Pi6,Pi7,Pi8):
+    
+    rho = 1.1839
+    nu = 1.562e-5
+    
+    Ue = Pi4*343 #equilibirum velocity
+    Cf = Pi6 #friction coefficient
+    tauw = 0.5*rho*Ue**2*Cf #wall shear stress
+    utau = np.sqrt(tauw/rho) #friction velocity
+    deltas = Pi7*(nu/utau**2)*Ue #displacement thickness
+    delta = deltas/Pi2 #boundray layer thickness
+    theta = Pi3*delta #momentum thickness
+    dpds =  (Pi8 - 1)*tauw/theta #static pressure gardient
+    PiCole = Pi5 #wake parameter
+    
+    blparam = {
+        'Ue' : Ue, #[m/s]
+        'Cf' : Cf, #[m/s]
+        'tauw' : tauw, #[m/s]
+        'delta' : delta, #[m]
+        'delta_star' : deltas,
+        'theta' : theta,
+        'Utau' : utau, #[m/s]
+        'betaC' : Pi8 - 1,
+        'Picoles' : PiCole #[-]
+        }
+
+    return blparam
+
 def plot_model(df,idx):
+    #create idx vector of the relevant boundray layer
     lenfile = len(np.unique(df['name']))
     lenf = len(df)/lenfile
     lgc_start = int(idx*lenf)
     lgc_end = int((idx+1)*lenf)-1
     
+    #get boundray layer parameters
+    blparam = getBl(df['Pi2'].iloc[lgc_start],
+                    df['Pi3'].iloc[lgc_start],
+                    df['Pi4'].iloc[lgc_start],
+                    df['Pi5'].iloc[lgc_start],
+                    df['Pi6'].iloc[lgc_start],
+                    df['Pi7'].iloc[lgc_start],
+                    df['Pi8'].iloc[lgc_start])
     
+    #prediction of the ANN
     predictions = model.predict(features).flatten()
     
     
-    plt.figure()
+    textstr = '\n'.join((
+    r'$Delta=%.2f$' % (blparam['delta']/blparam['delta_star'], ),
+    r'$H=%.2f$' % (blparam['delta_star']/blparam['theta'], ),
+    r'$Ma=%.2f$' % (blparam['Ue']/343, ),
+    r'$Pi=%.2f$' % (blparam['Picoles'], ),
+    r'$C_f=%.2f \times 10 ^{-3}$' % (blparam['Cf']*1000, ),
+    r'$R_T=%.2f$' % ((blparam['delta_star']/blparam['Ue'])/(1.562e-5/blparam['Utau']**2), ),
+    r'$Beta=%.2f$' % (blparam['betaC'], ),))
+    
+    
+    
+    fig, ax = plt.subplots()
+    
+    props = dict(boxstyle='round', alpha=0.5)
+    
     plt.semilogx(df.iloc[lgc_start:lgc_end]['Pi1'],df.iloc[lgc_start:lgc_end]['PiF_log'],linestyle='',marker='.',color='b',label='data')
     plt.semilogx(df.iloc[lgc_start:lgc_end]['Pi1'],predictions[lgc_start:lgc_end],linestyle='-',color='r',label='NN')
-    
     plt.grid()
     plt.xlabel(r"$ \omega \delta^* /U_e $ ")
     plt.ylabel(r"$ \Phi_{pp}  U_e / \tau_w^2 \delta^*$ ")
+    plt.title(df['name'].iloc[lgc_start])
     plt.legend()
     plt.axis([0.01, 100, -70, 30])
+    ax.text(0.05, 0.50, textstr, transform=ax.transAxes, fontsize=14,
+        verticalalignment='top', bbox=props)
     plt.show()
     
 
