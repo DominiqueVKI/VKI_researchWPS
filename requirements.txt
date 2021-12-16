@@ -2,3 +2,6 @@ deap
 scipy
 matplotlib
 pandas
+tensorflow
+os
+sklearn
