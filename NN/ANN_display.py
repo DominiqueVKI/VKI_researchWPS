@@ -101,13 +101,13 @@ def plot_model(df,idx):
     
     
     textstr = '\n'.join((
-    '$Delta=%.2f$' % (blparam['delta']/blparam['delta_star'], ),
-    '$H=%.2f$' % (blparam['delta_star']/blparam['theta'], ),
-    '$Ma=%.2f$' % (blparam['Ue']/343, ),
-    '$Pi=%.2f$' % (blparam['Picoles'], ),
-    '$Cf=%.2f x 10 ^{-3}$' % (blparam['Cf']*1000, ),
-    '$RT=%.2f$' % ((blparam['delta_star']/blparam['Ue'])/(1.562e-5/blparam['Utau']**2), ),
-    '$Beta=%.2f$' % (blparam['betaC'], ),))
+    r'$Delta=%.2f$' % (blparam['delta']/blparam['delta_star'], ),
+    r'$H=%.2f$' % (blparam['delta_star']/blparam['theta'], ),
+    r'$Ma=%.2f$' % (blparam['Ue']/343, ),
+    r'$Pi=%.2f$' % (blparam['Picoles'], ),
+    r'$Cf=%.2f \times 10 ^{-3}$' % (blparam['Cf']*1000, ),
+    r'$RT=%.2f$' % ((blparam['delta_star']/blparam['Ue'])/(1.562e-5/blparam['Utau']**2), ),
+    r'$Beta=%.2f$' % (blparam['betaC'], ),))
     
     
     
@@ -118,9 +118,9 @@ def plot_model(df,idx):
     plt.semilogx(df.iloc[lgc_start:lgc_end]['Pi1'],df.iloc[lgc_start:lgc_end]['PiF_log'],linestyle='',marker='.',color='b',label='data')
     plt.semilogx(df.iloc[lgc_start:lgc_end]['Pi1'],predictions[lgc_start:lgc_end],linestyle='-',color='r',label='NN')
     plt.grid()
-    plt.xlabel("$ omega delta* / Ue $ ")
-    plt.ylabel("$ Phi  Ue / tauw^2 delta*$ ")
-    plt.title(df['name'].iloc[lgc_start])
+    plt.xlabel(r"$\omega \delta^* / U_e$  ")
+    plt.ylabel(r"$ \Phi_{pp}  U_e / \tau_w^2 \delta^*$ ")
+    #plt.title(df['name'].iloc[lgc_start])
     plt.legend()
     plt.axis([0.01, 100, -70, 30])
     ax.text(0.05, 0.50, textstr, transform=ax.transAxes, fontsize=14,
