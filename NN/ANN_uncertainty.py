@@ -150,7 +150,7 @@ def plot_model(df,idx,error_in):
     plt.grid()
     plt.xlabel(r"$ \omega \delta^* /U_e $ ")
     plt.ylabel(r"$ \Phi_{pp}  U_e / \tau_w^2 \delta^*$ ")
-    plt.title(df['name'].iloc[lgc_start])
+    #plt.title(df['name'].iloc[lgc_start])
     plt.legend()
     plt.axis([0.01, 100, -70, 30])
 
